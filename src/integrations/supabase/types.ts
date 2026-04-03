@@ -52,7 +52,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_all_users_admin: {
+        Args: never
+        Returns: {
+          created_at: string
+          display_name: string
+          email: string
+          level: number
+          profile_id: string
+          user_id: string
+          xp_points: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

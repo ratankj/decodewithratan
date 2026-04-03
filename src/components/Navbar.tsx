@@ -11,6 +11,7 @@ export default function Navbar() {
     { to: '/dashboard', label: 'Dashboard' },
     { to: '/challenges', label: 'Challenges' },
     { to: '/leaderboard', label: 'Leaderboard' },
+    { to: '/admin', label: 'Admin' },
   ];
 
   return (
