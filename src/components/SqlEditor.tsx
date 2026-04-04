@@ -44,7 +44,7 @@ export default function SqlEditor({ setupSQL, solutionSQL, challengeId, onSolved
     setSolved(false);
     try {
       const SQL = await initSqlJs({
-        locateFile: (file: string) => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.12.0/${file}`,
+        locateFile: (file: string) => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/${file}`,
       });
       dbRef.current?.close();
 
