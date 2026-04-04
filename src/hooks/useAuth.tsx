@@ -81,7 +81,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
     });
 
-    // Save phone number to profile if signup succeeded and user exists
+    // Detect repeated signup (user already exists)
+    if (!error && data.user && data.user.identities?.length === 0) {
+      return { error: null, alreadyExists: true };
+    }
+
+    // Save phone number to profile if signup succeeded
     if (!error && data.user && phoneNumber) {
       await supabase
         .from('profiles')
