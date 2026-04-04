@@ -18,7 +18,7 @@ interface AuthContextType {
   profile: Profile | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signUp: (email: string, password: string, displayName: string, phoneNumber?: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, displayName: string, phoneNumber?: string) => Promise<{ error: Error | null; alreadyExists?: boolean }>;
   signOut: () => Promise<void>;
   verifyOtp: (email: string, token: string) => Promise<{ error: Error | null }>;
 }
@@ -81,7 +81,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
     });
 
-    // Save phone number to profile if signup succeeded and user exists
+    // Detect repeated signup (user already exists)
+    if (!error && data.user && data.user.identities?.length === 0) {
+      return { error: null, alreadyExists: true };
+    }
+
+    // Save phone number to profile if signup succeeded
     if (!error && data.user && phoneNumber) {
       await supabase
         .from('profiles')
