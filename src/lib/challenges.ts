@@ -48,6 +48,7 @@ export const challenges: Challenge[] = [
     title: 'Classroom Seating Swap',
     difficulty: 'HARD',
     description: 'Swap the seat IDs of consecutive students. If there is an odd number of students, the last student keeps their seat.',
+    expectedOutput: 'Return columns: id (swapped), name — ordered by id',
     schemaInfo: 'students (id, name)',
     setupSQL: `
       CREATE TABLE students (id INTEGER, name TEXT);
