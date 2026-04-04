@@ -3,6 +3,7 @@ export interface Challenge {
   title: string;
   difficulty: 'EASY' | 'MEDIUM' | 'HARD';
   description: string;
+  expectedOutput: string;
   schemaInfo: string;
   setupSQL: string;
   solutionSQL: string;
