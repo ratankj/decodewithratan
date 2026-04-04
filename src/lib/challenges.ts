@@ -16,6 +16,7 @@ export const challenges: Challenge[] = [
     title: 'Identify High-Impact Managers',
     difficulty: 'MEDIUM',
     description: 'Find managers supervising 5+ unique employees. Handle duplicates.',
+    expectedOutput: 'Return columns: manager_id, team_size (count of distinct employees)',
     schemaInfo: 'corporate_employees (employee_id, employee_name, department, manager_id)',
     setupSQL: `
       CREATE TABLE corporate_employees (
