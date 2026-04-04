@@ -3,19 +3,33 @@ import CodeMirror from '@uiw/react-codemirror';
 import { sql } from '@codemirror/lang-sql';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { Button } from '@/components/ui/button';
-import { Play } from 'lucide-react';
+import { Play, CheckCircle2 } from 'lucide-react';
 import initSqlJs, { Database } from 'sql.js';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Props {
   setupSQL: string;
+  solutionSQL: string;
+  challengeId: string;
+  onSolved?: () => void;
 }
 
-export default function SqlEditor({ setupSQL }: Props) {
+export default function SqlEditor({ setupSQL, solutionSQL, challengeId, onSolved }: Props) {
+  const { user } = useAuth();
   const [code, setCode] = useState('/* Start your solution */');
   const [results, setResults] = useState<{ columns: string[]; rows: any[][] } | null>(null);
   const [error, setError] = useState('');
   const [running, setRunning] = useState(false);
+  const [solved, setSolved] = useState(false);
   const dbRef = useRef<Database | null>(null);
+
+  useEffect(() => {
+    setCode('/* Start your solution */');
+    setSolved(false);
+    setResults(null);
+    setError('');
+  }, [challengeId]);
 
   useEffect(() => {
     return () => {
@@ -27,25 +41,54 @@ export default function SqlEditor({ setupSQL }: Props) {
     setRunning(true);
     setError('');
     setResults(null);
+    setSolved(false);
     try {
       const SQL = await initSqlJs({
         locateFile: (file: string) => `https://sql.js.org/dist/${file}`,
       });
       dbRef.current?.close();
-      const db = new SQL.Database();
-      dbRef.current = db;
-      db.run(setupSQL);
-      const res = db.exec(code);
-      if (res.length > 0) {
-        setResults({ columns: res[0].columns, rows: res[0].values });
+
+      // Run user query
+      const userDb = new SQL.Database();
+      userDb.run(setupSQL);
+      const userRes = userDb.exec(code);
+
+      // Run expected solution
+      const solDb = new SQL.Database();
+      solDb.run(setupSQL);
+      const solRes = solDb.exec(solutionSQL);
+      solDb.close();
+
+      if (userRes.length > 0) {
+        setResults({ columns: userRes[0].columns, rows: userRes[0].values });
+
+        // Compare results
+        if (solRes.length > 0) {
+          const userRows = JSON.stringify(userRes[0].values);
+          const solRows = JSON.stringify(solRes[0].values);
+          if (userRows === solRows) {
+            setSolved(true);
+            // Save completion to DB
+            if (user) {
+              await supabase.from('challenge_completions').upsert(
+                { user_id: user.id, challenge_id: challengeId },
+                { onConflict: 'user_id,challenge_id' }
+              );
+              onSolved?.();
+            }
+          }
+        }
       } else {
         setResults({ columns: ['Result'], rows: [['Query executed successfully (no rows returned)']] });
       }
+
+      userDb.close();
+      dbRef.current = null;
     } catch (e: any) {
       setError(e.message || 'Error executing query');
     }
     setRunning(false);
-  }, [code, setupSQL]);
+  }, [code, setupSQL, solutionSQL, challengeId, user, onSolved]);
 
   return (
     <div className="flex flex-col h-full">
@@ -66,7 +109,14 @@ export default function SqlEditor({ setupSQL }: Props) {
           basicSetup={{ lineNumbers: true, foldGutter: false }}
         />
       </div>
-      <div className="p-3 border-t border-border flex justify-end">
+      <div className="p-3 border-t border-border flex justify-between items-center">
+        {solved && (
+          <div className="flex items-center gap-2 text-primary font-semibold text-sm">
+            <CheckCircle2 className="h-5 w-5" />
+            Correct! Challenge solved.
+          </div>
+        )}
+        {!solved && <div />}
         <Button onClick={runCode} disabled={running} className="gap-2">
           <Play className="h-4 w-4" />
           {running ? 'Running...' : 'Run Code'}
