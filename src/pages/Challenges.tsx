@@ -116,7 +116,14 @@ export default function Challenges() {
                 {selected.difficulty}
               </span>
               <h2 className="text-xl font-bold mt-3 mb-2">{selected.title}</h2>
-              <p className="text-muted-foreground text-sm mb-6">{selected.description}</p>
+              <p className="text-muted-foreground text-sm mb-4">{selected.description}</p>
+
+              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                Expected Output
+              </h4>
+              <div className="rounded-lg bg-primary/10 border border-primary/20 p-3 text-sm text-primary font-medium mb-6">
+                {selected.expectedOutput}
+              </div>
 
               <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
                 Schema Info

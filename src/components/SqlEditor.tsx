@@ -62,19 +62,32 @@ export default function SqlEditor({ setupSQL, solutionSQL, challengeId, onSolved
       if (userRes.length > 0) {
         setResults({ columns: userRes[0].columns, rows: userRes[0].values });
 
-        // Compare results
+        // Compare results (sort rows for order-independent comparison)
         if (solRes.length > 0) {
-          const userRows = JSON.stringify(userRes[0].values);
-          const solRows = JSON.stringify(solRes[0].values);
-          if (userRows === solRows) {
-            setSolved(true);
-            // Save completion to DB
-            if (user) {
-              await supabase.from('challenge_completions').upsert(
-                { user_id: user.id, challenge_id: challengeId },
-                { onConflict: 'user_id,challenge_id' }
-              );
-              onSolved?.();
+          const sortRows = (rows: any[][]) =>
+            [...rows].sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
+
+          const userCols = userRes[0].columns.length;
+          const solCols = solRes[0].columns.length;
+
+          if (userCols !== solCols) {
+            setError(`Expected ${solCols} column(s) but your query returned ${userCols}. Check the expected output format.`);
+          } else if (userRes[0].values.length !== solRes[0].values.length) {
+            setError(`Expected ${solRes[0].values.length} row(s) but got ${userRes[0].values.length}. Close, but not quite!`);
+          } else {
+            const userRows = JSON.stringify(sortRows(userRes[0].values));
+            const solRows = JSON.stringify(sortRows(solRes[0].values));
+            if (userRows === solRows) {
+              setSolved(true);
+              if (user) {
+                await supabase.from('challenge_completions').upsert(
+                  { user_id: user.id, challenge_id: challengeId },
+                  { onConflict: 'user_id,challenge_id' }
+                );
+                onSolved?.();
+              }
+            } else {
+              setError('Your query returned the wrong values. Check your logic and try again.');
             }
           }
         }

@@ -3,6 +3,7 @@ export interface Challenge {
   title: string;
   difficulty: 'EASY' | 'MEDIUM' | 'HARD';
   description: string;
+  expectedOutput: string;
   schemaInfo: string;
   setupSQL: string;
   solutionSQL: string;
@@ -15,6 +16,7 @@ export const challenges: Challenge[] = [
     title: 'Identify High-Impact Managers',
     difficulty: 'MEDIUM',
     description: 'Find managers supervising 5+ unique employees. Handle duplicates.',
+    expectedOutput: 'Return columns: manager_id, team_size (count of distinct employees)',
     schemaInfo: 'corporate_employees (employee_id, employee_name, department, manager_id)',
     setupSQL: `
       CREATE TABLE corporate_employees (
@@ -46,6 +48,7 @@ export const challenges: Challenge[] = [
     title: 'Classroom Seating Swap',
     difficulty: 'HARD',
     description: 'Swap the seat IDs of consecutive students. If there is an odd number of students, the last student keeps their seat.',
+    expectedOutput: 'Return columns: id (swapped), name — ordered by id',
     schemaInfo: 'students (id, name)',
     setupSQL: `
       CREATE TABLE students (id INTEGER, name TEXT);
@@ -62,6 +65,7 @@ export const challenges: Challenge[] = [
     title: 'Top 3 Salaries per Department',
     difficulty: 'EASY',
     description: 'Find the top 3 highest salaries in each department.',
+    expectedOutput: 'Return columns: department, name, salary',
     schemaInfo: 'employees (id, name, salary, department)',
     setupSQL: `
       CREATE TABLE employees (id INTEGER, name TEXT, salary INTEGER, department TEXT);
