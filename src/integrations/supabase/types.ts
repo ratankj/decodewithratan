@@ -21,6 +21,7 @@ export type Database = {
           display_name: string | null
           id: string
           level: number
+          phone_number: string | null
           updated_at: string
           user_id: string
           xp_points: number
@@ -31,6 +32,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           level?: number
+          phone_number?: string | null
           updated_at?: string
           user_id: string
           xp_points?: number
@@ -41,6 +43,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           level?: number
+          phone_number?: string | null
           updated_at?: string
           user_id?: string
           xp_points?: number
