@@ -65,6 +65,7 @@ export const challenges: Challenge[] = [
     title: 'Top 3 Salaries per Department',
     difficulty: 'EASY',
     description: 'Find the top 3 highest salaries in each department.',
+    expectedOutput: 'Return columns: department, name, salary',
     schemaInfo: 'employees (id, name, salary, department)',
     setupSQL: `
       CREATE TABLE employees (id INTEGER, name TEXT, salary INTEGER, department TEXT);
