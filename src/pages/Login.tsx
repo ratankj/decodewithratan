@@ -28,6 +28,8 @@ export default function Login() {
       const result = await signUp(email, password, displayName, phoneNumber);
       if (result.error) {
         setError(result.error.message);
+      } else if (result.alreadyExists) {
+        setError('This email is already registered. Please sign in instead.');
       } else {
         setOtpStep(true);
         setSuccess('A verification code has been sent to your email. Please enter it below.');
