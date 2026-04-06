@@ -96,21 +96,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: error as Error | null };
   };
 
-  const verifyOtp = async (email: string, token: string) => {
-    const { error } = await supabase.auth.verifyOtp({
-      email,
-      token,
-      type: 'signup',
-    });
-    return { error: error as Error | null };
-  };
-
   const signOut = async () => {
     await supabase.auth.signOut();
   };
 
   return (
-    <AuthContext.Provider value={{ session, user, profile, loading, signIn, signUp, signOut, verifyOtp }}>
+    <AuthContext.Provider value={{ session, user, profile, loading, signIn, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );
