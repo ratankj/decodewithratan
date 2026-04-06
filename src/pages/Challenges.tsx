@@ -33,7 +33,7 @@ export default function Challenges() {
         .from('challenges')
         .select('*')
         .order('created_at', { ascending: true });
-      if (data) setChallenges(data as Challenge[]);
+      if (data) setChallenges(data as unknown as Challenge[]);
       setLoadingChallenges(false);
     };
     fetch();

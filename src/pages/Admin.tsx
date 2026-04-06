@@ -118,6 +118,8 @@ export default function Admin() {
             )}
           </CardContent>
         </Card>
+
+        <AdminChallenges />
       </main>
     </div>
   );
