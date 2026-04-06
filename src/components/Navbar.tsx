@@ -5,13 +5,13 @@ import { LogOut } from 'lucide-react';
 
 export default function Navbar() {
   const { pathname } = useLocation();
-  const { profile, signOut } = useAuth();
+  const { profile, signOut, isAdmin } = useAuth();
 
   const links = [
     { to: '/dashboard', label: 'Dashboard' },
     { to: '/challenges', label: 'Challenges' },
     { to: '/leaderboard', label: 'Leaderboard' },
-    { to: '/admin', label: 'Admin' },
+    ...(isAdmin ? [{ to: '/admin', label: 'Admin' }] : []),
   ];
 
   return (
