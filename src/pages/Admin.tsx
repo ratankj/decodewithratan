@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Users, Trophy, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
+import AdminChallenges from '@/components/AdminChallenges';
 
 interface UserRow {
   profile_id: string;
@@ -117,6 +118,8 @@ export default function Admin() {
             )}
           </CardContent>
         </Card>
+
+        <AdminChallenges />
       </main>
     </div>
   );
