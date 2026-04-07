@@ -15,6 +15,7 @@ interface DbChallenge {
   id: string;
   title: string;
   difficulty: string;
+  category: string;
   description: string;
   expected_output: string;
   schema_info: string;
@@ -27,6 +28,7 @@ interface DbChallenge {
 const emptyForm = {
   title: '',
   difficulty: 'MEDIUM' as string,
+  category: 'SQL' as string,
   description: '',
   expected_output: '',
   schema_info: '',
@@ -65,6 +67,7 @@ export default function AdminChallenges() {
     setForm({
       title: c.title,
       difficulty: c.difficulty,
+      category: c.category || 'SQL',
       description: c.description,
       expected_output: c.expected_output,
       schema_info: c.schema_info,
@@ -92,6 +95,7 @@ export default function AdminChallenges() {
     const payload = {
       title: form.title,
       difficulty: form.difficulty,
+      category: form.category,
       description: form.description,
       expected_output: form.expected_output,
       schema_info: form.schema_info,
@@ -147,6 +151,19 @@ export default function AdminChallenges() {
                   <Input value={form.title} onChange={e => updateField('title', e.target.value)} placeholder="Challenge title" />
                 </div>
                 <div>
+                  <label className="text-xs font-medium text-muted-foreground">Category *</label>
+                  <Select value={form.category} onValueChange={v => updateField('category', v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="SQL">SQL</SelectItem>
+                      <SelectItem value="Python">Python</SelectItem>
+                      <SelectItem value="Pandas">Pandas</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
                   <label className="text-xs font-medium text-muted-foreground">Difficulty *</label>
                   <Select value={form.difficulty} onValueChange={v => updateField('difficulty', v)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
@@ -198,6 +215,7 @@ export default function AdminChallenges() {
               <TableRow>
                 <TableHead>#</TableHead>
                 <TableHead>Title</TableHead>
+                <TableHead>Category</TableHead>
                 <TableHead>Difficulty</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -208,6 +226,9 @@ export default function AdminChallenges() {
                 <TableRow key={c.id}>
                   <TableCell className="font-mono text-muted-foreground">{i + 1}</TableCell>
                   <TableCell className="font-medium">{c.title}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="font-mono text-xs">{c.category || 'SQL'}</Badge>
+                  </TableCell>
                   <TableCell>
                     <Badge variant={c.difficulty === 'EASY' ? 'default' : c.difficulty === 'MEDIUM' ? 'secondary' : 'destructive'} className="font-mono text-xs">
                       {c.difficulty}

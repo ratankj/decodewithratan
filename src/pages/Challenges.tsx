@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import SqlEditor from '@/components/SqlEditor';
 import Navbar from '@/components/Navbar';
 import { motion } from 'framer-motion';
@@ -11,6 +11,7 @@ interface Challenge {
   id: string;
   title: string;
   difficulty: string;
+  category: string;
   description: string;
   expected_output: string;
   schema_info: string;
@@ -19,12 +20,16 @@ interface Challenge {
   table_preview: { columns: string[]; rows: (string | number | null)[][] };
 }
 
+const CATEGORIES = ['SQL', 'Python', 'Pandas'];
+
 export default function Challenges() {
   const { id } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeCategory = searchParams.get('category') || 'SQL';
   const navigate = useNavigate();
   const { user } = useAuth();
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
-  const [challenges, setChallenges] = useState<Challenge[]>([]);
+  const [allChallenges, setAllChallenges] = useState<Challenge[]>([]);
   const [loadingChallenges, setLoadingChallenges] = useState(true);
 
   useEffect(() => {
@@ -33,11 +38,13 @@ export default function Challenges() {
         .from('challenges')
         .select('*')
         .order('created_at', { ascending: true });
-      if (data) setChallenges(data as unknown as Challenge[]);
+      if (data) setAllChallenges(data as unknown as Challenge[]);
       setLoadingChallenges(false);
     };
     fetch();
   }, []);
+
+  const challenges = allChallenges.filter(c => c.category === activeCategory);
 
   const fetchCompletions = useCallback(async () => {
     if (!user) return;
@@ -64,15 +71,15 @@ export default function Challenges() {
 
   useEffect(() => {
     if (selected && selectedIndex >= 0 && !isUnlocked(selectedIndex) && challenges.length > 0) {
-      navigate('/challenges/' + challenges[0].id, { replace: true });
+      navigate('/challenges/' + challenges[0].id + '?category=' + activeCategory, { replace: true });
     }
   }, [selected, selectedIndex, completedIds, challenges]);
 
   useEffect(() => {
-    if (!id && challenges.length > 0) {
-      navigate('/challenges/' + challenges[0].id, { replace: true });
+    if (challenges.length > 0 && (!id || !challenges.find(c => c.id === id))) {
+      navigate('/challenges/' + challenges[0].id + '?category=' + activeCategory, { replace: true });
     }
-  }, [id, challenges]);
+  }, [id, challenges, activeCategory]);
 
   if (loadingChallenges) {
     return (
@@ -88,8 +95,21 @@ export default function Challenges() {
       <Navbar />
       <div className="flex flex-1 overflow-hidden">
         <aside className="w-64 border-r border-border bg-card/50 p-4 flex-shrink-0 overflow-y-auto">
+          <div className="flex gap-1 mb-4">
+            {CATEGORIES.map(cat => (
+              <button
+                key={cat}
+                onClick={() => { setSearchParams({ category: cat }); }}
+                className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
+                  activeCategory === cat ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-secondary'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
           <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-            SQL Practice Set
+            {activeCategory} Practice Set
           </h3>
           {challenges.map((c, index) => {
             const unlocked = isUnlocked(index);
@@ -98,7 +118,7 @@ export default function Challenges() {
             return unlocked ? (
               <Link
                 key={c.id}
-                to={`/challenges/${c.id}`}
+                to={`/challenges/${c.id}?category=${activeCategory}`}
                 className={`flex items-center justify-between px-3 py-2 rounded-md text-sm mb-1 transition-colors ${
                   selected?.id === c.id
                     ? 'bg-secondary text-foreground'
