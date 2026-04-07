@@ -215,6 +215,7 @@ export default function AdminChallenges() {
               <TableRow>
                 <TableHead>#</TableHead>
                 <TableHead>Title</TableHead>
+                <TableHead>Category</TableHead>
                 <TableHead>Difficulty</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -225,6 +226,9 @@ export default function AdminChallenges() {
                 <TableRow key={c.id}>
                   <TableCell className="font-mono text-muted-foreground">{i + 1}</TableCell>
                   <TableCell className="font-medium">{c.title}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="font-mono text-xs">{c.category || 'SQL'}</Badge>
+                  </TableCell>
                   <TableCell>
                     <Badge variant={c.difficulty === 'EASY' ? 'default' : c.difficulty === 'MEDIUM' ? 'secondary' : 'destructive'} className="font-mono text-xs">
                       {c.difficulty}
