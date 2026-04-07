@@ -71,15 +71,15 @@ export default function Challenges() {
 
   useEffect(() => {
     if (selected && selectedIndex >= 0 && !isUnlocked(selectedIndex) && challenges.length > 0) {
-      navigate('/challenges/' + challenges[0].id, { replace: true });
+      navigate('/challenges/' + challenges[0].id + '?category=' + activeCategory, { replace: true });
     }
   }, [selected, selectedIndex, completedIds, challenges]);
 
   useEffect(() => {
-    if (!id && challenges.length > 0) {
-      navigate('/challenges/' + challenges[0].id, { replace: true });
+    if (challenges.length > 0 && (!id || !challenges.find(c => c.id === id))) {
+      navigate('/challenges/' + challenges[0].id + '?category=' + activeCategory, { replace: true });
     }
-  }, [id, challenges]);
+  }, [id, challenges, activeCategory]);
 
   if (loadingChallenges) {
     return (
