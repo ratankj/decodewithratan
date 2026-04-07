@@ -118,7 +118,7 @@ export default function Challenges() {
             return unlocked ? (
               <Link
                 key={c.id}
-                to={`/challenges/${c.id}`}
+                to={`/challenges/${c.id}?category=${activeCategory}`}
                 className={`flex items-center justify-between px-3 py-2 rounded-md text-sm mb-1 transition-colors ${
                   selected?.id === c.id
                     ? 'bg-secondary text-foreground'
