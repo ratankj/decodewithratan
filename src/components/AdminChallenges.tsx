@@ -67,6 +67,7 @@ export default function AdminChallenges() {
     setForm({
       title: c.title,
       difficulty: c.difficulty,
+      category: c.category || 'SQL',
       description: c.description,
       expected_output: c.expected_output,
       schema_info: c.schema_info,
@@ -94,6 +95,7 @@ export default function AdminChallenges() {
     const payload = {
       title: form.title,
       difficulty: form.difficulty,
+      category: form.category,
       description: form.description,
       expected_output: form.expected_output,
       schema_info: form.schema_info,
