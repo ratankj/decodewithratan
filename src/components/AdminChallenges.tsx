@@ -151,6 +151,19 @@ export default function AdminChallenges() {
                   <Input value={form.title} onChange={e => updateField('title', e.target.value)} placeholder="Challenge title" />
                 </div>
                 <div>
+                  <label className="text-xs font-medium text-muted-foreground">Category *</label>
+                  <Select value={form.category} onValueChange={v => updateField('category', v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="SQL">SQL</SelectItem>
+                      <SelectItem value="Python">Python</SelectItem>
+                      <SelectItem value="Pandas">Pandas</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
                   <label className="text-xs font-medium text-muted-foreground">Difficulty *</label>
                   <Select value={form.difficulty} onValueChange={v => updateField('difficulty', v)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
