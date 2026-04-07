@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import SqlEditor from '@/components/SqlEditor';
 import Navbar from '@/components/Navbar';
 import { motion } from 'framer-motion';
@@ -11,6 +11,7 @@ interface Challenge {
   id: string;
   title: string;
   difficulty: string;
+  category: string;
   description: string;
   expected_output: string;
   schema_info: string;
@@ -19,12 +20,16 @@ interface Challenge {
   table_preview: { columns: string[]; rows: (string | number | null)[][] };
 }
 
+const CATEGORIES = ['SQL', 'Python', 'Pandas'];
+
 export default function Challenges() {
   const { id } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeCategory = searchParams.get('category') || 'SQL';
   const navigate = useNavigate();
   const { user } = useAuth();
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
-  const [challenges, setChallenges] = useState<Challenge[]>([]);
+  const [allChallenges, setAllChallenges] = useState<Challenge[]>([]);
   const [loadingChallenges, setLoadingChallenges] = useState(true);
 
   useEffect(() => {
@@ -33,11 +38,13 @@ export default function Challenges() {
         .from('challenges')
         .select('*')
         .order('created_at', { ascending: true });
-      if (data) setChallenges(data as unknown as Challenge[]);
+      if (data) setAllChallenges(data as unknown as Challenge[]);
       setLoadingChallenges(false);
     };
     fetch();
   }, []);
+
+  const challenges = allChallenges.filter(c => c.category === activeCategory);
 
   const fetchCompletions = useCallback(async () => {
     if (!user) return;
