@@ -15,6 +15,7 @@ interface DbChallenge {
   id: string;
   title: string;
   difficulty: string;
+  category: string;
   description: string;
   expected_output: string;
   schema_info: string;
@@ -27,6 +28,7 @@ interface DbChallenge {
 const emptyForm = {
   title: '',
   difficulty: 'MEDIUM' as string,
+  category: 'SQL' as string,
   description: '',
   expected_output: '',
   schema_info: '',
