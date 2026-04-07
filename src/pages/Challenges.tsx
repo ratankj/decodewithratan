@@ -95,8 +95,21 @@ export default function Challenges() {
       <Navbar />
       <div className="flex flex-1 overflow-hidden">
         <aside className="w-64 border-r border-border bg-card/50 p-4 flex-shrink-0 overflow-y-auto">
+          <div className="flex gap-1 mb-4">
+            {CATEGORIES.map(cat => (
+              <button
+                key={cat}
+                onClick={() => { setSearchParams({ category: cat }); }}
+                className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
+                  activeCategory === cat ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-secondary'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
           <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-            SQL Practice Set
+            {activeCategory} Practice Set
           </h3>
           {challenges.map((c, index) => {
             const unlocked = isUnlocked(index);
