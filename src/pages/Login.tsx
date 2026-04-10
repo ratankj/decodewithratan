@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,6 +21,19 @@ export default function Login() {
     e.preventDefault();
     setError('');
     setLoading(true);
+
+    if (forgotMode) {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      setLoading(false);
+      if (error) {
+        setError(error.message);
+      } else {
+        setResetSent(true);
+      }
+      return;
+    }
 
     if (isSignUp) {
       const result = await signUp(email, password, displayName, phoneNumber);
