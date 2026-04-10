@@ -1,7 +1,7 @@
 import { useAuth } from '@/hooks/useAuth';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Trophy, Target, Flame, Database, Code, BarChart3, CheckCircle2 } from 'lucide-react';
+import { Trophy, Target, Flame, Database, Code, BarChart3, CheckCircle2, Circle } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import { supabase } from '@/lib/supabase';
 import { useEffect, useState } from 'react';
@@ -29,7 +29,7 @@ function computeStats(
   challenges: ChallengeInfo[],
   completedIds: Set<string>,
   categoryFilter: string | null
-): { solved: SolvedStats; totalByDifficulty: { easy: number; medium: number; hard: number; total: number } } {
+) {
   const filtered = categoryFilter
     ? challenges.filter((c) => c.category === categoryFilter)
     : challenges;
@@ -47,6 +47,73 @@ function computeStats(
   });
 
   return { solved, totalByDifficulty };
+}
+
+function CircularProgress({ solved, total, size = 120 }: { solved: number; total: number; size?: number }) {
+  const strokeWidth = 8;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const percentage = total > 0 ? (solved / total) * 100 : 0;
+  const strokeDashoffset = circumference - (percentage / 100) * circumference;
+
+  return (
+    <div className="relative" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90">
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="hsl(var(--muted))"
+          strokeWidth={strokeWidth}
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="hsl(var(--primary))"
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          className="transition-all duration-700 ease-out"
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-2xl font-bold font-mono">{solved}</span>
+        <span className="text-xs text-muted-foreground">/ {total}</span>
+      </div>
+    </div>
+  );
+}
+
+function DifficultyBar({ label, solved, total, color }: { label: string; solved: number; total: number; color: string }) {
+  const pct = total > 0 ? (solved / total) * 100 : 0;
+  const colorMap: Record<string, { bar: string; text: string; dot: string }> = {
+    green: { bar: 'bg-green-500', text: 'text-green-500', dot: 'bg-green-500' },
+    yellow: { bar: 'bg-yellow-500', text: 'text-yellow-500', dot: 'bg-yellow-500' },
+    red: { bar: 'bg-red-500', text: 'text-red-500', dot: 'bg-red-500' },
+  };
+  const c = colorMap[color] || colorMap.green;
+
+  return (
+    <div className="flex items-center gap-3">
+      <div className={`w-2 h-2 rounded-full ${c.dot} shrink-0`} />
+      <span className={`text-sm font-medium w-16 ${c.text}`}>{label}</span>
+      <div className="flex-1 bg-muted rounded-full h-2.5 overflow-hidden">
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${pct}%` }}
+          transition={{ duration: 0.7, ease: 'easeOut' }}
+          className={`h-full rounded-full ${c.bar}`}
+        />
+      </div>
+      <span className="text-sm font-mono text-muted-foreground w-12 text-right">
+        {solved}/{total}
+      </span>
+    </div>
+  );
 }
 
 export default function Dashboard() {
@@ -83,10 +150,10 @@ export default function Dashboard() {
     { icon: Flame, label: 'Level', value: profile?.level ?? 1, color: 'text-warning' },
   ];
 
-  const difficultyCards = [
-    { label: 'Easy', solved: solved.easy, total: totalByDifficulty.easy, color: 'text-green-500', bg: 'bg-green-500/10', border: 'border-green-500/20' },
-    { label: 'Medium', solved: solved.medium, total: totalByDifficulty.medium, color: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' },
-    { label: 'Hard', solved: solved.hard, total: totalByDifficulty.hard, color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/20' },
+  const difficultyRows = [
+    { label: 'Easy', solved: solved.easy, total: totalByDifficulty.easy, color: 'green' },
+    { label: 'Medium', solved: solved.medium, total: totalByDifficulty.medium, color: 'yellow' },
+    { label: 'Hard', solved: solved.hard, total: totalByDifficulty.hard, color: 'red' },
   ];
 
   return (
@@ -119,22 +186,27 @@ export default function Dashboard() {
         </div>
 
         {/* Progress Section */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-          <div className="flex items-center justify-between mb-4">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="rounded-xl border border-border bg-card p-6 mb-8"
+        >
+          <div className="flex items-center justify-between mb-5">
             <h2 className="text-lg font-semibold flex items-center gap-2">
               <CheckCircle2 className="h-5 w-5 text-primary" />
-              Your Progress {selectedCategory ? `— ${selectedCategory}` : '— All'}
+              Your Progress
             </h2>
           </div>
 
           {/* Category filter pills */}
-          <div className="flex flex-wrap gap-2 mb-4">
+          <div className="flex flex-wrap gap-2 mb-6">
             <button
               onClick={() => setSelectedCategory(null)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
                 selectedCategory === null
-                  ? 'bg-primary text-primary-foreground border-primary'
-                  : 'bg-card text-muted-foreground border-border hover:border-primary/50'
+                  ? 'bg-primary text-primary-foreground shadow-md shadow-primary/25'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
               }`}
             >
               All
@@ -143,43 +215,32 @@ export default function Dashboard() {
               <button
                 key={cat.key}
                 onClick={() => setSelectedCategory(cat.key)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
+                className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
                   selectedCategory === cat.key
-                    ? 'bg-primary text-primary-foreground border-primary'
-                    : 'bg-card text-muted-foreground border-border hover:border-primary/50'
+                    ? 'bg-primary text-primary-foreground shadow-md shadow-primary/25'
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
                 }`}
               >
+                <cat.icon className="h-3 w-3" />
                 {cat.key}
               </button>
             ))}
           </div>
 
-          {/* Solved summary */}
-          <div className="rounded-xl border border-border bg-card p-5 mb-4">
-            <p className="text-sm text-muted-foreground mb-1">Questions Solved</p>
-            <p className="text-3xl font-bold font-mono">
-              {solved.total} <span className="text-lg text-muted-foreground font-normal">/ {totalByDifficulty.total}</span>
-            </p>
-            {totalByDifficulty.total > 0 && (
-              <div className="w-full bg-muted rounded-full h-2 mt-3 overflow-hidden">
-                <div
-                  className="bg-primary h-2 rounded-full transition-all duration-500"
-                  style={{ width: `${(solved.total / totalByDifficulty.total) * 100}%` }}
-                />
-              </div>
-            )}
-          </div>
+          {/* Circle + Bars layout */}
+          <div className="flex flex-col sm:flex-row items-center gap-8">
+            {/* Circular progress */}
+            <div className="shrink-0">
+              <CircularProgress solved={solved.total} total={totalByDifficulty.total} size={130} />
+              <p className="text-center text-xs text-muted-foreground mt-2">Solved</p>
+            </div>
 
-          {/* Difficulty breakdown */}
-          <div className="grid grid-cols-3 gap-3 mb-8">
-            {difficultyCards.map((d) => (
-              <div key={d.label} className={`rounded-xl border ${d.border} ${d.bg} p-4 text-center`}>
-                <p className={`text-xs font-semibold ${d.color} mb-1`}>{d.label}</p>
-                <p className="text-xl font-bold font-mono">
-                  {d.solved}<span className="text-sm text-muted-foreground font-normal">/{d.total}</span>
-                </p>
-              </div>
-            ))}
+            {/* Difficulty bars */}
+            <div className="flex-1 w-full space-y-4">
+              {difficultyRows.map((d) => (
+                <DifficultyBar key={d.label} {...d} />
+              ))}
+            </div>
           </div>
         </motion.div>
 
