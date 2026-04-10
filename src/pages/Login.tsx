@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { motion } from 'framer-motion';
 
 export default function Login() {
@@ -96,7 +97,7 @@ export default function Login() {
                 {!forgotMode && (
                   <div>
                     <label className="block text-sm font-medium mb-1.5">Password</label>
-                    <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
+                    <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
                   </div>
                 )}
 
