@@ -10,6 +10,7 @@ import Challenges from "./pages/Challenges";
 import Leaderboard from "./pages/Leaderboard";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
+import ResetPassword from "./pages/ResetPassword";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,7 @@ const AppRoutes = () => (
     <Route path="/challenges/:id" element={<ProtectedRoute><Challenges /></ProtectedRoute>} />
     <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
     <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
+    <Route path="/reset-password" element={<ResetPassword />} />
     <Route path="/" element={<Navigate to="/dashboard" replace />} />
     <Route path="*" element={<NotFound />} />
   </Routes>
